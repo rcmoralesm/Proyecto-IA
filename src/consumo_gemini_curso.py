@@ -43,9 +43,37 @@ def extraer_texto(datos):#gemini
 def obtener_dato_de_prueba(pregunta):
      url, body = armar_peticion(pregunta)
      datos = enviar_peticion(url, body)
+     costo= calcular_costo(datos, 0.00000075, 0.00000375)
+     print(f"costo de la peticion: {costo:.6f} USD")
      return extraer_texto(datos)
 
+#def calcular_costo(datos: dict, precio_entrada: float, precio_salida: float) -> float:
+def calcular_costo(datos, precio_entrada,precio_salida): 
+    #datos = {dict... "usageMetadata": {"totalTokens": 100, "inputTokens": 60, "outputTokens": 40}}
+    uso = datos["usageMetadata"]
+    ...
+    uso = { 
+        "promptTokenCount": 11,
+        "candidatesTokenCount": 100,
+        "totalTokenCount": 680,
+        "promptTokensDetails": [
+            {
+                "modality": "TEXT",
+                "tokenCount": 11
+            }
+        ],
+        "thoughtsTokenCount": 569,
+        "serviceTier": "standard"
+        }
+    ...
+    tokens_entrada = uso["promptTokenCount"]
+    tokens_salida = uso["candidatesTokenCount"]
+    tokens_razonamiento = uso["thoughtsTokenCount"] #revisar si existe este campo, si no existe poner 0s
+    costo = (tokens_entrada * precio_entrada) + (tokens_salida * precio_salida) + (tokens_razonamiento * precio_salida)
+    return costo    
+
+
 try:
-    print(obtener_dato_de_prueba("si una adivinanza?"))
+    print(obtener_dato_de_prueba("Que es un prompt?"))
 except (ValueError, RuntimeError) as error:
     print("no se pudo obtener el texto generado:", os.error)
