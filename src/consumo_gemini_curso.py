@@ -1,13 +1,17 @@
 import os
 import requests
 from dotenv import load_dotenv
+
+import time
   
 load_dotenv()
+
+
 
   #funcion para armar la peticion
 def armar_peticion(pregunta):
      api_key = os.getenv("GEMINI_API_KEY")
-     modelo = "gemini-3.8-flash"
+     modelo = "gemini-3.5-flash-lite"
      link_base="https://generativelanguage.googleapis.com/v1beta/models/"
      url = f"{link_base}{modelo}:generateContent?key={api_key}"
      body = {
@@ -40,12 +44,22 @@ def extraer_texto(datos):#gemini
      except (KeyError, IndexError):
          raise RuntimeError("Error: no recibe el texto generado.")
 
-def obtener_dato_de_prueba(pregunta):
-     url, body = armar_peticion(pregunta)
-     datos = enviar_peticion(url, body)
-     costo= calcular_costo(datos, 0.00000075, 0.00000375)
-     print(f"costo de la peticion: {costo:.6f} USD")
-     return extraer_texto(datos)
+def obtener_dato_de_prueba(pregunta): #pregunta = "Confirma la conexion"
+    url, body = armar_peticion(pregunta) #obtiene url y body
+
+    inicio = time.perf_counter() #Empezar el contador
+
+    #url = resultado de armar_peticion
+    #body = resultado de armar_peticion
+    datos = enviar_peticion(url, body)
+
+    fin = time.perf_counter() #Termina el contador
+    latencia = fin - inicio
+    print(f"Latencia: {latencia:.2f} segundos")
+
+    costo = calcular_costo(datos, 0.00000075, 0.00000375)
+    print(f"Costo de la petición: ${costo:.6f} USD")
+    return extraer_texto(datos)
 
 #def calcular_costo(datos: dict, precio_entrada: float, precio_salida: float) -> float:
 def calcular_costo(datos, precio_entrada,precio_salida): 
@@ -74,6 +88,6 @@ def calcular_costo(datos, precio_entrada,precio_salida):
 
 
 try:
-    print(obtener_dato_de_prueba("Que es un prompt?"))
+    print(obtener_dato_de_prueba("Maxus t60 2.0 Error ODB2 u1563-16"))
 except (ValueError, RuntimeError) as error:
     print("no se pudo obtener el texto generado:", os.error)
