@@ -25,13 +25,19 @@ Nombre de la aplicacion: "scanner IA"
     "gemini-3.5-flash-lite": (0.0000003, 0.0000025),
     "gemini-3.6-flash": (0.00000075, 0.00000375),
 
-    Pregunta u/o condiciones:
+    Preguntas y/o condiciones:
 
-    Pregunta 1
-    pregunta 2
-    pregunta 3 
+1. Pregunta/condición Uno
+2. Pregunta/condición Dos
+3. Pregunta/condición Tres
 
-    Tabla
+| Criterio | Nombre exacto del modelo A | Nombre exacto del modelo B |
+|---|---|---|
+| Tarifa de entrada en UD por millón de tokens | | |
+| Tarifa de salida en USD por millón de tokens | | |
+| Latencias observadas en segundos | | |
+| Latencia promedio en segundos | | |
+| Calidad para nuestra miniaplicación | | |
 
 
     Fuente sobre las tarifas:
