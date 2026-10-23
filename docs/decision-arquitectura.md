@@ -6,12 +6,9 @@ Nombre de la aplicacion: "scanner IA"
  ## Modelo elegido
 
   Elegi el modelo:
-  mi mini aplicacion sirve para:
+  mi mini aplicacion sirve para obtener fallas claras y precisas sobre los codigos de falla que entrega un scanner automotriz
   los requisitos que necesito cumplir son
-
-    requisito 1
-    requisito 2
-    requisito 3
+que la IA permita recepcionar codigos escritos como imagenes con el diagnostico del scanner y entrege en un lenguaje siemple la respuesta
 
  ## Diagrama de arquitectura
 
@@ -75,10 +72,8 @@ Ambas suenan seguras y técnicas, pero no pueden ser las dos correctas.
   
  ## Alternativa descartada y por qué
 
-Mi recomendación
-Repite la prueba de los otros dos modelos cuando baje la carga del servidor. Con 429 conviene espaciar más los reintentos (backoff exponencial más largo) y limitar peticiones por minuto.
+recomendación
+Repitir la prueba de los otros dos modelos cuando baje la carga del servidor. 
 Corre más intentos del modelo que sí respondió y mide qué tan consistente es, porque hoy no lo es.
-Define el idioma en el prompt para evitar respuestas en inglés.
-Si me pasas los logs completos de los otros dos modelos, hago el ranking de mejor respuesta, precio y calidad-precio que pediste.
-
+evitar respuestas en inglés.
 Con estos datos, lo único que puedo decir es que gemini-3.6-flash es barato (menos de una milésima de dólar por consulta) pero lento (33–48 s) e inconsistente en el contenido.
