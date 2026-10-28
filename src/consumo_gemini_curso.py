@@ -14,7 +14,7 @@ load_dotenv()
 
 
   #funcion para armar la peticion
-def armar_peticion(modelo,pregunta, system_instruction, response_schema):
+def armar_peticion(modelo,pregunta, system_instruction, response_schema=None):
      api_key = os.getenv("GEMINI_API_KEY")
      #modelo = "gemini-3.5-flash-lite"
      link_base="https://generativelanguage.googleapis.com/v1beta/models/"
@@ -34,6 +34,7 @@ def armar_peticion(modelo,pregunta, system_instruction, response_schema):
      return url, body
 
 #armar la peticion, enviar la peticion y extraer el texto de la respuesta
+#función que le habla directamente al proveedor, y la única que traduce sus respuestas
   
 def enviar_peticion(url, body):
     try:
@@ -42,6 +43,16 @@ def enviar_peticion(url, body):
         raise SystemExit("Error: No se pudo conectar al servidor. Verifica tu conexión a Internet.")
     except requests.exceptions.Timeout:
         raise SystemExit("Error: La solicitud ha excedido el tiempo de espera.")
+    if respuesta.status_code in(401,403):
+        raise ValueError("Credencial invalida o sin permiso, Revisa tu Gemini apykey")
+    if respuesta.status_code >=500:
+        raise TimeoutError ("el proveedor no ,pudo procesar la peticion, hay que esperar y reintentar")
+    if respuesta.status_code == 429:
+            segundos = respuesta.headers.get("Retry-After")
+            mensaje = f"Límite excedido. Reintentar en {segundos}s." if segundos else "Límite excedido."
+            raise TimeoutError(mensaje)
+
+
     if respuesta.status_code != 200:
         raise SystemExit(f"Error {respuesta.status_code}: {respuesta.text}")
     try:
@@ -49,12 +60,16 @@ def enviar_peticion(url, body):
     except requests.exceptions.JSONDecodeError:
         raise SystemExit("la respuesta del servidor no llego.")
 
+#################################################################
+
 #funcion para extraer el texto de la respuesta
 def extraer_texto(datos):#gemini
      try:
          return datos["candidates"][0]["content"]["parts"][0]["text"]
      except (KeyError, IndexError):
          raise RuntimeError("Error: no recibe el texto generado.")
+
+
 
 def obtener_dato_de_prueba(pregunta): #pregunta = "Confirma la conexion"
 
@@ -66,9 +81,7 @@ def obtener_dato_de_prueba(pregunta): #pregunta = "Confirma la conexion"
         },
         "required": ["categoria", "confianza"]
     }
-
-
-    system_instruction = "Eres un asistente de ingeniería automotriz, que responde a " \
+    system_instruction = "Eres un ingeniería automotriz, que responde a " \
     "preguntas sobre fallas y errores de vehículos. Responde de manera clara y concisa, " \
     "proporcionando soluciones prácticas y pasos a seguir para resolver problemas automotrices. " \
     "Evita respuestas vagas o genéricas, y enfócate en brindar información útil y específica para ayudar al " \
@@ -144,8 +157,9 @@ def parsear_respuesta_json(texto, claves_requeridas=None):
         if faltantes:
             raise ValueError("la respuesta no tiene la estructura esperada." )
         return datos
-
-try:
-    print(obtener_dato_de_prueba("Maxus t60 2.0, Error ODB2 u1563-16"))
-except (ValueError, RuntimeError, KeyError) as error:
-    print("no se pudo obtener el texto generado:", error)
+    
+#se comenta para no pasar latencia
+#try:
+#    print(obtener_dato_de_prueba("Maxus t60 2.0, Error ODB2 u1563-16"))
+#except (ValueError, RuntimeError, KeyError) as error:
+#    print("no se pudo obtener el texto generado:", error)
