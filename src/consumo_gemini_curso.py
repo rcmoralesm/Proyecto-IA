@@ -1,7 +1,6 @@
 import os
 import requests
 from dotenv import load_dotenv
-
 import time
 import json
 import re
@@ -38,11 +37,20 @@ def armar_peticion(modelo,pregunta, system_instruction, response_schema=None):
   
 def enviar_peticion(url, body):
     try:
-     respuesta = requests.post(url, json=body, timeout=30)
-    except requests.exceptions.connectionError:
-        raise SystemExit("Error: No se pudo conectar al servidor. Verifica tu conexión a Internet.")
-    except requests.exceptions.Timeout:
-        raise SystemExit("Error: La solicitud ha excedido el tiempo de espera.")
+        respuesta = requests.post(
+            url,
+            json=body,
+            timeout=30
+        )
+    except requests.exceptions.Timeout as error:
+        raise TimeoutError(
+            "Se agotó el tiempo de espera del proveedor."
+        ) from error
+    except requests.exceptions.ConnectionError as error:
+        raise RuntimeError(
+            "No se pudo conectar al servidor. "
+            "Verifica tu conexión a Internet."
+        ) from error
     if respuesta.status_code in(401,403):
         raise ValueError("Credencial invalida o sin permiso, Revisa tu Gemini apykey")
     if respuesta.status_code >=500:
@@ -159,7 +167,7 @@ def parsear_respuesta_json(texto, claves_requeridas=None):
         return datos
     
 #se comenta para no pasar latencia
-#try:
-#    print(obtener_dato_de_prueba("Maxus t60 2.0, Error ODB2 u1563-16"))
-#except (ValueError, RuntimeError, KeyError) as error:
-#    print("no se pudo obtener el texto generado:", error)
+try:
+    print(obtener_dato_de_prueba("Maxus t60 2.0, Error ODB2 u1563-16"))
+except (ValueError, RuntimeError, KeyError) as error:
+    print("no se pudo obtener el texto generado:", error)

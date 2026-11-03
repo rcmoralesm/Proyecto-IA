@@ -1,10 +1,10 @@
-from cliente import *
+from cliente import consultar_modelo
 from pipeline_limpieza import procesar_texto
 
 
-consulta = "¿Qué es Python?"
+consulta = "¿CoMo SuPo que le pAsó?"
 
-referencia = "Python es un lenguaje de programación interpretado."
+referencia = "Poooorr ke salto la rejAA"
 
 respuesta = consultar_modelo(consulta)
 
