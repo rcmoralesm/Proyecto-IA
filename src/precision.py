@@ -139,7 +139,8 @@ casos = [
 resultados = []
 
 for consulta, referencia in casos:
-    respuesta = consultar_modelo(consulta, system_instruction="Responde en español con una definición breve, en una sola oración de máximo 15 palabras. Sin listas, ejemplos ni introducciones.")
+    respuesta = consultar_modelo(consulta, system_instruction="Responde en español con una definición breve, " \
+    "en una sola oración de máximo 10 palabras.")
     
     metricas = calcular_metricas(referencia, respuesta)
     
