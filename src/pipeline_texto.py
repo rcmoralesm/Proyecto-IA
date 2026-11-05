@@ -1,5 +1,5 @@
-from cliente import consultar_modelo
-from pipeline_limpieza import procesar_texto
+from .cliente import consultar_modelo
+from .pipeline_limpieza import procesar_texto
 
 
 consulta = "¿CoMo SuPo que le pAsó?"

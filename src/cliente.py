@@ -2,7 +2,7 @@ import time
 import random
 from typing import Callable, Any
 
-from consumo_gemini_curso import armar_peticion, extraer_texto, enviar_peticion
+from .consumo_gemini_curso import armar_peticion, extraer_texto, enviar_peticion
 
 MODELO = "gemini-3.1-flash-lite"
 
