@@ -25,13 +25,13 @@ def test_enviar_peticion_exito():
 ######enviar_peticion######
 
 ######con_reintento######
-from cliente import con_reintento
-from cliente import consultar_modelo
+from src.cliente import con_reintento
+from src.cliente import consultar_modelo
 from unittest.mock import patch
 
 def test_con_reintento():
     funcion = Mock(side_effect=TimeoutError("simulado"))
-    with patch("cliente.time.sleep") as mock_sleep:
+    with patch("src.cliente.time.sleep") as mock_sleep:
         with pytest.raises(TimeoutError, match="simulado"):
             con_reintento(funcion, intentos=3)
     assert funcion.call_count == 3   # hizo los 3 intentos
@@ -41,9 +41,9 @@ def test_con_reintento():
 def test_consultar_modelo():
     error_simulado = TimeoutError("simulado")
 
-    with patch("cliente.armar_peticion", return_value=("https://x", {})), \
-         patch("cliente.con_reintento", side_effect=error_simulado) as mock_reintento, \
-         patch("cliente.registrar_costo") as mock_costo:
+    with patch("src.cliente.armar_peticion", return_value=("https://x", {})), \
+         patch("src.cliente.con_reintento", side_effect=error_simulado) as mock_reintento, \
+         patch("src.cliente.registrar_costo") as mock_costo:
         with pytest.raises(RuntimeError, match="no respondió") as info:
             consultar_modelo("pregunta de prueba")
 
@@ -55,22 +55,22 @@ def test_consultar_modelo():
 
 
 ######registrar_costo######
-import cliente
+import src.cliente
 
 @pytest.fixture(autouse=True)
 def reiniciar_costo_total():
-    cliente.costo_total_sesion = 0
+    src.cliente.costo_total_sesion = 0
     yield
 
 def test_registrar_costo_calcula_por_tokens():
     respuesta_falsa = {"usageMetadata": {"totalTokenCount": 1000}}
 
-    costo = cliente.registrar_costo(respuesta_falsa)
+    costo = src.cliente.registrar_costo(respuesta_falsa)
 
-    assert costo == pytest.approx(cliente.COSTO_POR_1000_TOKENS)
-    assert cliente.costo_total_sesion == pytest.approx(cliente.COSTO_POR_1000_TOKENS)
+    assert costo == pytest.approx(src.cliente.COSTO_POR_1000_TOKENS)
+    assert src.cliente.costo_total_sesion == pytest.approx(src.cliente.COSTO_POR_1000_TOKENS)
 
 def test_costo_total():
-    assert cliente.registrar_costo({}) == 0
-    assert cliente.costo_total_sesion == 0
+    assert src.cliente.registrar_costo({}) == 0
+    assert src.cliente.costo_total_sesion == 0
 ######registrar_costo######
