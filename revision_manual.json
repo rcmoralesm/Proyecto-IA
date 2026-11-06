@@ -1,0 +1,172 @@
+[
+  {
+    "consulta": "U0210-OO",
+    "respuesta": "Es un código de error para fallos en comunicación CAN.",
+    "precision": 0.1,
+    "cobertura": 0.2,
+    "f1": 0.13333333333333333,
+    "correccion_factual": "no",
+    "completitud": "parcialmente",
+    "nota": "Puede ayudar"
+  },
+  {
+    "consulta": "U0255-87",
+    "respuesta": "Es un código de falla del módulo de control electrónico.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "U011187",
+    "respuesta": "Es un código de error del sistema de frenos ABS.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "IJ0424-62",
+    "respuesta": "Es una referencia técnica para el conector de fibra óptica.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "U0155-87",
+    "respuesta": "Código de error OBD-II por comunicación perdida con el tablero.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "U0140-87",
+    "respuesta": "Es un código de falla relativo a la comunicación CAN.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "U025587",
+    "respuesta": "Es un código identificador único para personas o trámites.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "1-1011187",
+    "respuesta": "Es un código numérico identificador de un registro específico.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "B1006-31",
+    "respuesta": "Es un código de error para sensores de bolsa aire.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "BID81-14",
+    "respuesta": "Es una norma técnica sobre equipos de transmisión eléctrica.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "Bl D82-76",
+    "respuesta": "Es una norma técnica para tuberías de acero soldadas.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "U0126-87",
+    "respuesta": "Inhibidor selectivo de las quinasas MEK 1 y 2.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "U0322-87",
+    "respuesta": "Código de diagnóstico relacionado con una falla de comunicación.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "U025587",
+    "respuesta": "Es un código de error técnico para dispositivos específicos.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "U011187",
+    "respuesta": "Es un código de error relacionado con el bus CAN.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "U025587",
+    "respuesta": "Es un código de error técnico para dispositivos electrónicos específicos.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  },
+  {
+    "consulta": "U0424-62",
+    "respuesta": "Es una galaxia espiral barrada situada en la constelación Eridanus.",
+    "precision": 0.0,
+    "cobertura": 0.0,
+    "f1": 0.0,
+    "correccion_factual": "no",
+    "completitud": "no",
+    "nota": "no entrego mas informacion"
+  }
+]

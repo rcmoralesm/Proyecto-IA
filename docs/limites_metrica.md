@@ -4,22 +4,22 @@
 
 ## Qué mide
 
-(una frase: qué compara la métrica y qué cuenta)
+Mide la respuesta estandar del escaner Vesus la que entrega el agente
 
 
 
 ## Modos de falla conocidos
 
-(una viñeta por caso, con un ejemplo concreto de cada uno)
+un mismo codigo puede tener distinto significado dependiendo la marca, modelo y año del vehiculo
 
 
 
 ## Muestra revisada
 
-(cuántos casos revisaste a mano, y cómo los elegiste)
+revise 20 casos
 
 
 
 ## Recomendación de uso
 
-(cuándo confiar en el número solo, y cuándo revisar a mano)
+usar un agente mas avanzado, pero tenemos el limite de tokens 
