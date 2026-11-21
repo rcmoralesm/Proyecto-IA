@@ -1,20 +1,26 @@
-from dotenv import load_dotenv
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_chroma import Chroma
+from dotenv import load_dotenv #importa variables de entorno
+from langchain_text_splitters import RecursiveCharacterTextSplitter #función para dividir (chunking)
+from langchain_google_genai import GoogleGenerativeAIEmbeddings #embedding de Gemini
+from langchain_chroma import Chroma #Chroma = vector store
 from langchain_core.documents import Document
 
 load_dotenv()
-
+"""
+Auditar localmente que no haya chunks vacíos ni duplicados antes de gastar tokens en embeddings
+"""
 def verificar_integridad(chunks, corpus_original):
-    #Recorro todos los chunk con su indice (i), quitamos/saltos de linea
-    #guardo lista de posiciones de cualqier fragmanto de que haya quedado en blanco
+    #Recorrer todos los chunks con su indice (i), quitamos espacios/saltos de línea
+    #guardo lista de posiciones de cualquier fragmento que haya quedado en blanco
     vacios = [i for i, c in enumerate(chunks) if not c.page_content.strip()]
 
-    #extraigo texto plano de cad objeto
+    #Extraigo el texto plano de cada objeto, lista
     textos = [c.page_content for c in chunks]
 
-    #set/conjunto es una lista de valores unicos
+    #lista1 = ["manzana", "pera", "manzana", "uvas"]
+    #set1 = ["manzana", "pera", "uvas"]
+
+    #Set/Conjunto es una lista de valores únicos
+    #Convierto la lista de textos en un set (para eliminar repetidos automáticamente), y si la longitud es distinta a la original significa que tenemos chunks iguales
     hay_duplicados = len(textos) != len(set(textos))
 
     if vacios:
@@ -22,73 +28,82 @@ def verificar_integridad(chunks, corpus_original):
     if hay_duplicados:
         print("Advertencia: Se detectaron chunks duplicados en el corpus.")
 
-#sumar el total de caracteres de todos los chunk generados VS el total de caracteres del corpus original
+    #Sumar el otal de caracteres de todos los chunks generados vs. el total de caracteres del corpus original
     total_chars_chunks = sum(len(c.page_content) for c in chunks)
     total_chars_corpus = sum(len(d) for d in corpus_original)
+
     print(f"Integridad OK | Chunks: {len(chunks)} | Caracteres (corpus/chunks): {total_chars_corpus}/{total_chars_chunks}")
 
-
 """
-Recibir un corpus/texto dividirlo, calcular embedding, y guardar el corpues en el vector store
+Recibir un corpus/texto dividirlo, calcular el embedding, y guardar el corpus en mi vector store
 """
-
 def indexar_corpus(corpus, persist_directory, chunk_size=200, chunk_overlap=30, es_documento=False):
-#dividir en fragmantos mas pequeños corpus/texto
-    splitter = RecursiveCharacterTextSplitter (
+    #Dividir en fragmentos más pequeños corpus/texto
+    splitter = RecursiveCharacterTextSplitter( #Configuración para la división
         chunk_size=chunk_size,
-        chunk_overlap= chunk_overlap
+        chunk_overlap=chunk_overlap
     )
-    #divicion en chunk
-    #chunk = splitter.create_documents(text=corpus, metadatas=[{"origen:"manual.pdf", "pagina": 2}])
-    chunk = splitter.create_documents(corpus) #create_documents permite agregar metadatos
+
+    #División
+    #chunks = splitter.create_documents(texts=corpus, metadatas=[{"origen": "manual.pdf", "pagina": 2}])
     if not es_documento:
-        chunk = splitter.create_documents(corpus)
+        chunks = splitter.create_documents(corpus) #create_documents: me permite agregar metadatos
     else:
-        chunk = splitter.split_documents(corpus)
+        chunks = splitter.split_documents(corpus)
 
+    #Todo: generar ids y mandarlos
 
-    verificar_integridad(chunk,corpus)
+    #verificar_integridad(chunks, corpus)
 
-    #embedding
-    embedding = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
+    #Embedding
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
 
+    #Si esta función recibe ids, actualizar los ids que ya existían y generar un nuevo chunk para aquellos que no
+    #Si no envío ids, se generan de manera automática
     vector_store = Chroma.from_documents(
-        documents=chunk,
-        embedding=embedding,
+        documents=chunks,
+        embedding=embeddings,
         persist_directory=persist_directory
+        #ids=["id1", "id2"]
     )
+
     return vector_store
 
 """
-funcion que abre/carga la carpeta existente del disco para leerla. No gasto tokens
+Función que abre/carga la carpeta existente del disco para leerla. NO GASTO TOKENS
 """
 def cargar_vectorstore(persist_directory):
-    embedding=GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
-    return Chroma(persist_directory=persist_directory, embedding_function=embedding)
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
+    return Chroma(persist_directory=persist_directory, embedding_function=embeddings)
 
-def eliminar_por_ids(vectorstore, id_a_borrar):
-    vectorstore.delete(ids=id_a_borrar)
+def eliminar_por_ids(vectorstore, ids_a_borrar):
+    vectorstore.delete(ids=ids_a_borrar)
 
 def agregar_documentos(vectorstore, nuevos_textos, prefijo_id, chunk_size=200, chunk_overlap=30):
+    #doc_
+    splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    nuevo_chunks = splitter.create_documents(nuevos_textos) #Lista de los fragmentos
 
-    spitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    nuevo_chunk = spitter.create_documents(nuevos_textos) #lista los fragmentos
+    #Crear los ids
+    ids_nuevos = [f"{prefijo_id}_{i}" for i in range(len(nuevo_chunks))] #["doc_0", "doc_1", "doc_2"]
 
-    #crear los ID
-    ids_nuevos = [f"{prefijo_id}_{i}" for i in range(len(nuevo_chunk))] #["doc_0", "doc_1", "doc_2"]
     #ids_nuevos = []
-    #for i in range(len(nuevos_chunk)):
-    #   ids_nuevos.append(f"{prefijo_idx}_{i}"")
+    #for i in range(len(nuevo_chunks)):
+    #   ids_nuevos.append(f"{prefijo_id}_{i}"")
 
-    #verificar_integridad(nuevo_chunk, nuevos_textos)
+    verificar_integridad(nuevo_chunks, nuevos_textos)
 
     try:
-        vectorstore.add_documents(nuevo_chunk, ids_nuevos)
-        print(f"agregados {len(nuevo_chunk)} chunk con prefijo {prefijo_id}")
+        vectorstore.add_documents(ids=ids_nuevos, documents=nuevo_chunks)
+        #vectorstore.add_documents(nuevo_chunks, ids_nuevos)
+        print(f"Agregados {len(nuevo_chunks)} chunks con el prefijo {prefijo_id}")
     except Exception as error:
-        print("error al agregar nuevos documentos", error)
+        print("Error al agregrar nuevos documentos: ", error)
 
-#realiza ka busca semantica 
+"""
+Realiza la búsqueda semántica (por significado, NO POR PALABRA EXACTA) en el vector store.
+Devuelve una lista con los resultados semejantes
+"""
 def buscar_similares(vectorstore, pregunta, k=3):
     #El modelo (Gemini) se encarga únicamente de hacer la traducción de la pregunta a vectores numéricos (gasta tokens)
     #Chroma se encarga de regresarme la lista con los chunks más parecidos
@@ -113,87 +128,107 @@ def formatear_contexto(chunks_recuperados):
     lineas = []
     citas = {}
 
+    """
+    chunks_recuperados = [
+
+        {
+            "page_content": "El usuario puede iniciar 3 veces sesión",
+            "metadata": {
+                "fuente": "manual_de_usuario.txt",
+                "fecha": "2026-11-13"
+            }
+        },
+        {},
+        {}
+    
+    ]
+    """
    
     for i, doc in enumerate(chunks_recuperados, start=1):
         #Si el chunk no se indexó con metadata["fuente"], devolverá "desconocida"
-        fuente = doc.metadata.get("fuente", "desconocida")
-        lineas.append(f"[{i}] {doc.page_content}")
-        citas[i] = fuente
+        fuente = doc.metadata.get("fuente", "desconocida") #"manual_de_usuario.txt"
+        lineas.append(f"[{i}] {doc.page_content}") # [1] "El usuario puede iniciar 3 veces sesión"
+        citas[i] = fuente #{1: "manual_de_usuario.txt"}
 
     contexto = "\n\n".join(lineas)
     return contexto, citas
 
-def inspeccionar_chunk(vectorstore):
-    datos = vectorstore.get() 
-    #datos["ids"], datos ["Documents"], datos["Metadata"]
+#¿Cuál es el ID de cada chunk?
+def inspeccionar_chunks(vectorstore):
+    datos = vectorstore.get()
+    #datos["ids"], datos["documents"], datos["metadatas"]
     total = len(datos["ids"])
-    print(f"-- INVENTARIO de chunk en chroma (Total_{total})--")
+    print(f"-- INVENTARIO DE CHUNKS EN CHROMA (Total: {total}) --")
 
+    """
+    [
+        (579517b3-b962-4d38-aaae-def944b4e486, El cliente reintenta hasta 3 veces ante un TimeoutError, con espera creciente...., None),
+        (233bfcaa-0650-433e-803c-e1d83235259a, El costo de cada llamada se calcula a partir de totalTokenCount...., None),
+    ]
+
+    chunk_id = 579517b3-b962-4d38-aaae-def944b4e486
+    texto = El cliente reintenta hasta 3 veces ante un TimeoutError, con espera creciente....
+    meta = None
+    """
     for i, (chunk_id, texto, meta) in enumerate(zip(datos["ids"], datos["documents"], datos["metadatas"]), start=1):
         print(f"[{i}] ID: {chunk_id}")
         print(f"Fuente/Meta: {meta}")
-        resumen = texto.replace("\n","")[:100] #quita los saltos de linea y obten los primeros 100 caracteres
-        print(f"contenido: {resumen}...")
+        resumen = texto.replace("\n", " ") #Quita los saltos de línea y obten solo los primeros 100 caracteres
+        print(f"Contenido: {resumen}...")
 
-if __name__=="__main__":
-    CARPETA_DB = "vector_ejemplo"
-#     corpus = [
-#     "El cliente reintenta hasta 3 veces ante un TimeoutError, con espera creciente.",
-#     "Los errores de autenticacion nunca se reintentan: fallan de inmediato con un "
-#     "ValueError.",
-#     "El costo de cada llamada se calcula a partir de totalTokenCount y la tarifa "
-# ]
-#     #indexar_corpus(corpus, CARPETA_DB) #almacena el texto
-#     #indexar_corpus(corpus=corpus, persist_directory=CARPETA_DB, chunk_size=250, chunk_overlap=35)
+if __name__ == "__main__":
+    #Constante
+    CARPETA_DB = "vectorstore_odb2"
 
-    vs = cargar_vectorstore(CARPETA_DB) #carga la carpeta para poder consultar/actualizar mas adelante
-#     print ("chunk indexados:", vs._collection.count())#imprime los chunk indexados
+    # corpus = [
+    #     "El cliente reintenta hasta 3 veces ante un TimeoutError, con espera creciente.",
+    #     "El costo de cada llamada se calcula a partir de totalTokenCount.",
+    #     "Las pruebas unitarias del cliente usan mocks y corren en menos de un segundo.",
+    # ]
 
-#     datos = vs.get()
-#     print ("IDs almacenados:", datos["ids"])
-#     print ("Chunks almacenados:", datos["documents"])
+    # #indexar_corpus(corpus, CARPETA_DB) #Almacenar el texto
+    # #indexar_corpus(corpus=corpus, persist_directory=CARPETA_DB, chunk_size=250, chunk_overlap=35)
 
-# eliminar por id
-#  eliminar_por_ids(
-#          vectorstore=vs,
-#          id_a_borrar=["9a08cd6c-401a-4999-85a4-0354c4a0051a"],
-#      )
-# print("IDs después de borrar:", vs.get()["ids"])
+    # vs = cargar_vectorstore(CARPETA_DB) #Cargar la carpeta para poder consultarla/actualizarla más adelante
+    # print("Chunks indexados: ", vs._collection.count()) #Imprime los chunks indexados
 
+    # datos = vs.get()
+    # print("IDs almacenados: ", datos["ids"])
+    # print("Chunks almacenados: ", datos["documents"])
 
-# nueva_politica = ["Los envios internacionales tienen un tiempo estimado de entrega de 20 a 30 dias habiles."]
-#     #agregar_documentos(vs, nueva_politica, "doc_nuevo", 150, 20)
-# agregar_documentos(
-#         vectorstore=vs, 
-#         nuevos_textos=nueva_politica, 
-#         prefijo_id="doc_nuevo", 
-#         chunk_size=150, 
-#         chunk_overlap=20
-#     )
+    # #eliminar_por_ids(["579517b3-b962-4d38-aaae-def944b4e486"])
 
-# datos = vs.get()
-# print("IDs almacenados: ", datos["ids"])
-# print("Chunks almacenados: ", datos["documents"])
+    # nueva_politica = ["Los envíos nacionales tardan entre 5 y 10 días hábiles"]
+    # #agregar_documentos(vs, nueva_politica, "doc_nuevo", 150, 20)
+    # agregar_documentos(
+    #     vectorstore=vs, 
+    #     nuevos_textos=nueva_politica, 
+    #     prefijo_id="doc_nuevo", 
+    #     chunk_size=150, 
+    #     chunk_overlap=20
+    # )
 
-#     vs = cargar_vectorstore(CARPETA_DB)
-#     pregunta = "¿Qué hace el sistema cuando hay un fallo de red o tiempo de espera?"
+    # datos = vs.get()
+    # print("IDs almacenados: ", datos["ids"])
+    # print("Chunks almacenados: ", datos["documents"])
+
+    vs = cargar_vectorstore(CARPETA_DB)
+    # pregunta = "¿Qué hace el sistema cuando hay un fallo de red o tiempo de espera?"
     
-#     chunks_recuperados = buscar_similares(vs, pregunta, k=2)
+    # chunks_recuperados = buscar_similares(vs, pregunta, k=2)
 
+    # #k = Cantidad de chunks que quiero que regrese
+    # retrievier = vs.as_retriever(search_kwargs={"k": 2}) #Adapta lo que tenía en Chroma para poder utilizarlo en LangChain
+    # #Ventaja principal: Cadena o Agente | 
+    # resultados = retrievier.invoke("¿Cuánto tarda un envío en el mismo país?")
+    # for r in resultados:
+    #     print(r.page_content)
 
-# #k = Cantidad de chunks que quiero que regrese
-#     retrievier = vs.as_retriever(search_kwargs={"k": 2}) #Adapta lo que tenía en Chroma para poder utilizarlo en LangChain
-#     #Ventaja principal: Cadena o Agente | 
-#     resultados = retrievier.invoke("¿Cuánto tarda un envío en el mismo país?")
-#     for r in resultados:
-#         print(r.page_content)
-
-
- #Instalación adicional si queremos leer pdf, docs, etc
-    with open("manual_de_usuario.txt", "r", encoding="utf-8") as f: #r: read, a: append, w: write
+    #Instalación adicional si queremos leer pdf, docs, etc
+    with open("odb2_ejemplo.txt", "r", encoding="utf-8") as f: #r: read, a: append, w: write
         contenido = f.read()
 
-    documentos = [Document(page_content=contenido, metadata={"fuente": "manual_de_usuario.txt", "fecha": "2026-11-13"})]
+    documentos = [Document(page_content=contenido, metadata={"fuente": "odb2_ejemplo.txt", "fecha": "2026-11-18"})]
 
     #indexar_corpus(documentos, CARPETA_DB, es_documento=True) #comentado para que no vuelvan a ingresar el manual de usuario en su vs
 
@@ -201,19 +236,20 @@ if __name__=="__main__":
     print("IDs almacenados: ", datos["ids"])
     print("Chunks almacenados: ", datos["documents"])
 
+    retriever = vs.as_retriever(search_kwargs={"k": 2})
+    # chunks_recuperados = retriever.invoke("¿Cuantos reintentos tengo ante un error?")
 
-    retriever = vs.as_retriever(search_kwargs={"k":3})
-    chunk_recuperados = retriever.invoke("¿Cuantos reintentos tengo ante un error")
+    # contexto, citas = formatear_contexto(chunks_recuperados)
+    # print("--CONTEXTO FORMATEADO--")
+    # print(contexto)
+    # print("--DICCIONARIO DE CITAS--")
+    # print(citas)
 
-    contexto, citas = formatear_contexto(chunk_recuperados)
-    print("--CONTEXTO FORMATEADO--")
-    print(contexto)
-    print("--DICCCIONARIO DE CITAS--")
-    print(citas)
+    inspeccionar_chunks(vs)
 
-    inspeccionar_chunk(vs)
+    #consulta: "Cuáles son los errores de credenciales inválidas?"
+    #ids_relevantes = {"a4bc644f-ffa9-4219-94b2-5fd7cff518be"}
 
-
-#codigo para borrar todo mi vector store
+    #*****ADVERTENCIA***** Código para borrar todo mi vectorstore
     # if os.path.exists(CARPETA_DB):
     #     shutil.rmtree(CARPETA_DB)

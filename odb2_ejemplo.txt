@@ -1,0 +1,12 @@
+P0101: Problema de rendimiento o rango del sensor MAF (flujo de masa de aire).
+P0113: Señal alta en el circuito del sensor de temperatura del aire de admisión (IAT).
+P0118: Señal alta en el circuito del sensor de temperatura del refrigerante del motor (ECT).
+P0128: Temperatura del refrigerante por debajo de lo esperado (termostato abierto o motor tarda en calentar).
+P0135: Fallo en el circuito del calentador del sensor de oxígeno (O2), banco 1, sensor 1.
+P0171: Mezcla de aire-combustible demasiado pobre en el banco 1 (exceso de aire o falta de combustible).
+P0172: Mezcla de aire-combustible demasiado rica en el banco 1 (exceso de combustible).
+P0300: Fallos de encendido aleatorios o en múltiples cilindros.
+P0420: Eficiencia del sistema catalizador por debajo del umbral (banco 1).
+P0442: Fuga pequeña detectada en el sistema de control de emisiones evaporativas (EVAP).
+P0700: Solicitud de encendido de luz de avería por falla en el sistema de control de la transmisión.
+C0035: Fallo en el circuito del sensor de velocidad de la rueda delantera izquierda (frenos/ABS)
